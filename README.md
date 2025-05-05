@@ -1,58 +1,29 @@
-# senior-be-developer-task
+Thank you for the interesting assignment! 🙂
 
-## Introduction 
-Hello! If you are viewing this repository you are probably a candidate for HyperGuest senior backend developer, congrats!
+I explored two solutions to the problem. One of them — Queue-first-version-not-liked.ts — I ultimately discarded because
+it involved unnecessary iterations and had poor algorithmic complexity.
 
-Before we begin, a few important notes please!
-* Any AI tool is forbidden during this task. We already know Github copilot is a great tool, we don't need to test it :) 
-* This task is designated to test your problem-solving skills, still, code quality do matters! submit a code you would like to read as well
-* At your sumption please include the next things :
-    -  your implementation of `Queues.ts`. Any other files are not allowed to be changed during this test.
-    -  write a clear explanation of your implementation.
-    -  suggest improvements! the code in this repository is not perfect, what would you do differently?
-* Do not PR to this repo! if you would, all of your opponents would copy your answers ;)
+The final implementation can be found in Queue.ts.
 
-Good luck!
+While working on the first version, I realized that scenarios where a single worker handles multiple items break the
+logic — this led me to rethink the design.
 
-## Task description
+In the second version, I solved this by assigning one item to a single worker. This guarantees that only one worker
+processes a given item at a time. As a result, some workers may remain idle, but the processing remains correct and
+consistent.
 
-The code in this repo is not working properly. 
+Most of the methods and variable names are self-explanatory. So you'll easily understand the reason of them.
 
-The script `main.ts` is trying to write "a lot" of data into a simulation of a key-value database ( implemented in `Datable.ts`). As Databases usually do - our database has small latency - between 0 to 100 ms per operation. 
-In order to allow faster process of the messages our `main.ts` script puts all the operations in a queue (see the `Queue.ts` file). Than it launches a random number (between 3 to 6) of "workers" (see `Worker.ts`), that works asynchronously in parallel, reading messages from the queue and commit the operation to the "Database". Each worker should "confirm" to the queue that the message was proceeded, so the message would be deleted.
-The script wait for 10 seconds (enough time for all the workers to complete the work), prints the state of hte queue and the DB state, and exits. 
+The current solution ensures full concurrency safety with O(1) operations for enqueuing and dequeuing messages. It’s
+scalable and maintains a clear separation of concerns for worker–item coordination.
 
-However! <br />
-the results are wrong :( <br /> 
-We set all the initial values to 50, and than we add all numbers between 1 to 9 for each item. therefore the correct results so the correct output should be:
-```bash
-# > ts-node main.ts
-Number of items:3
-Number of workers:5
-Queue size:  0
-DB state:
- {
-    "item2": 95,
-    "item0": 95,
-    "item1": 95
-}
-```
+I considered writing a few test cases as well, but since it wasn’t part of the requirements, I decided to skip that for
+now.
 
+Total time spent on this task: ~2–3 hours including exploration, debugging, and final polishing.
 
-While running the script would look like this (different values would be shown on each run):
-```bash
-# > ts-node main.ts
-Number of items:3
-Number of workers:5
-Queue size:  0
-DB state:
- {
-    "item2": 74,
-    "item0": 74,
-    "item1": 15
-}
-```
+Notes for improvement:
 
-Please assist our dev team to implement a valid version of `Queue.ts`! 
-
-*note*: Any implementation that would effectively not allow any parallel work between the workers would be rejected.
+- If we'll need worker result, we should consider adding await Promise.all() for worker completion.
+- Worker dies silently when queue is empty. That’s fine for this test, but in a real system you might want
+  retry,wait,backoff logic.
